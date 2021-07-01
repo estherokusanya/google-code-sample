@@ -27,7 +27,12 @@ class Video {
   }
 
   /** Returns a readonly collection of the tags of the video. */
-  List<String> getTags() {
+  List<String> getTagsAList() {
     return tags;
+  }
+
+  String getTags() {
+    String str=String.join(",", tags);
+    return "[" + str.replace(",", " ") +"]";
   }
 }
