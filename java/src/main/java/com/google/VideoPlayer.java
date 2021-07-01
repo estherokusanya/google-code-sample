@@ -3,101 +3,102 @@ package com.google;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 
 public class VideoPlayer {
 
   private final VideoLibrary videoLibrary;
   private List<Video> videos;
-  private String playingVideo = "";
-  private boolean paused = false;
+  private HashMap<String, Boolean> playingvideoMap = new HashMap<>();
   private List<VideoPlaylist> playlists;
+  private HashMap<String, Video> videoNameMap = new HashMap<String, Video>();
 
   public VideoPlayer() {
     this.videoLibrary = new VideoLibrary();
     videos = videoLibrary.getVideos();
     playlists = new ArrayList<>();
+    for(Video video: videos){
+      videoNameMap.put(video.getVideoId(),video);
+    }
   }
+
+  private String getPlayingVideoId(){
+   return "" + playingvideoMap.keySet().toArray()[0]; 
+  }
+  private String getPlayingVideoName(){
+    return videoNameMap.get(getPlayingVideoId()).getTitle();
+  }
+
 
   public void numberOfVideos() {
     System.out.printf("%s videos in the library%n", videoLibrary.getVideos().size());
   }
 
+
   public void showAllVideos() {
+    Set<String> videoNamesSet = videoNameMap.keySet();
     List<String> videoNames = new ArrayList<>();
-    for (Video video: videos){
-      videoNames.add(video.getTitle());
+    for(String name: videoNamesSet){
+      videoNames.add(name);
     }
     Collections.sort(videoNames);
     System.out.println("Here's a list of all available videos:");
     for (String name: videoNames){
-      for (Video video: videos){
-        if(name==video.getTitle()){
-          System.out.println(" " + video.getTitle() + " (" + video.getVideoId() + ") "  + video.getTags());
-          break;
-        }
-      }
+      System.out.println(videoNameMap.get(name).videoInfo());
     }
   }
 
   public void playVideo(String videoId) {
-    boolean exists = false;
-    String videoName = "";
-    for(Video video: videos){
-      if (video.getVideoId().equals(videoId)){
-        exists = true;
-        videoName = video.getTitle();
-        break;
+    if(videoNameMap.containsKey(videoId)){
+      if(!playingvideoMap.isEmpty()){
+        System.out.println("Stopping video: " + getPlayingVideoName());
       }
-    }
-    if(exists){
-      if(!playingVideo.equals("")){
-        System.out.println("Stopping video: " + playingVideo);
-      }
-      playingVideo = videoName;
-      System.out.println("Playing video: " + playingVideo);
-      paused = false;
+      playingvideoMap.put(videoId, false);
+      System.out.println("Playing video: " + getPlayingVideoName());
     }
     else{
       System.out.println("Cannot play video: Video does not exist");
     }
   }
 
+
   public void stopVideo() {
-    if(!playingVideo.equals("")){
-      System.out.println("Stopping video: Amazing Cats");
-      playingVideo = "";
-      paused = false;
+    if(!playingvideoMap.isEmpty()){
+      System.out.println("Stopping video: " + getPlayingVideoName());
+      playingvideoMap.clear();
     }
     else{
       System.out.println("Cannot stop video: No video is currently playing");
     }
-    
   }
+
 
   public void playRandomVideo() {
-    Random rand = new Random();
     if(videos.size()>0){
-      if(!playingVideo.equals("")){
-        System.out.println("Stopping video: " + playingVideo);
+      Random rand = new Random();
+      int number = rand.nextInt(videos.size());
+      if(!playingvideoMap.isEmpty()){
+        System.out.println("Stopping video: " + getPlayingVideoName());
       }
-      playingVideo = videos.get(rand.nextInt(videos.size())).getTitle();
-        System.out.println("Playing video: " + playingVideo);
-        paused = false;
+      playingvideoMap.put(videos.get(number).getVideoId(), false);
+      System.out.println("Playing video: " + getPlayingVideoName());
     }
     else{
-      System.out.println("No videos available.");
+      System.out.println("No videos available");
     }
   }
 
+
   public void pauseVideo() {
-    if(!playingVideo.equals("")){
-      if (paused){
-        System.out.println("Video already paused: " + playingVideo);
+    if(!playingvideoMap.isEmpty()){
+      if(!playingvideoMap.get(getPlayingVideoId())){
+        playingvideoMap.replace(""+ getPlayingVideoId(), true);
+        System.out.println("Pausing video: " + getPlayingVideoName());
       }
       else{
-        System.out.println("Pausing video: " + playingVideo);
-        paused=true;
+        System.out.println("Video already paused: " + getPlayingVideoName());
       }
     }
     else{
@@ -105,11 +106,11 @@ public class VideoPlayer {
     }
   }
 
+
   public void continueVideo() {
-    if(!playingVideo.equals("")){
-      if(paused){
-        System.out.println("Continuing video: " + playingVideo);
-        paused=false;
+    if(!playingvideoMap.isEmpty()){
+      if(playingvideoMap.get(getPlayingVideoId())){
+        System.out.println("Continuing video: "+ getPlayingVideoName());
       }
       else{
         System.out.println("Cannot continue video: Video is not paused");
@@ -120,24 +121,21 @@ public class VideoPlayer {
     }
   }
 
+
   public void showPlaying() {
-    if (!playingVideo.equals("")){
-      String videoInfo = "";
-      for(Video video: videos){
-        if(playingVideo.equals(video.getTitle())){
-          videoInfo = video.getTitle() + " (" + video.getVideoId() + ") "  + video.getTags();
-          break;
-        }
+    if(!playingvideoMap.isEmpty()){
+      if(playingvideoMap.get(getPlayingVideoId())){
+        System.out.println("Currently playing:" + videoNameMap.get(getPlayingVideoId()).videoInfo() + " - PAUSED");
+        return;
       }
-      if (paused){
-        videoInfo = videoInfo + " - PAUSED";
+      else{
+        System.out.println("Currently playing:" + videoNameMap.get(getPlayingVideoId()).videoInfo());
+        return;
       }
-      System.out.println("Currently playing: " + videoInfo);
     }
-    else{
-      System.out.println("No video is currently playing");
-    }
+    System.out.println("No video is currently playing");
   }
+
 
   public void createPlaylist(String playlistName) {
     if(playlists.size()>0){

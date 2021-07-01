@@ -35,4 +35,8 @@ class Video {
     String str=String.join(",", tags);
     return "[" + str.replace(",", " ") +"]";
   }
+
+  String videoInfo(){
+    return " " + this.getTitle() + " (" + this.getVideoId() + ") "  + this.getTags();
+  }
 }
