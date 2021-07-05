@@ -8,6 +8,7 @@ class VideoPlaylist {
 
   private String name;
   private List<Video> playlist;
+  //private HashMap<String, Video> = new HashMap<>();
 
   public VideoPlaylist(String name){
     this.name = name;
@@ -35,10 +36,19 @@ class VideoPlaylist {
       }
     }
   }
+
   void clearPlaylist(){
-    for(int i=0; i<playlist.size(); i++){
-      playlist.remove(i);
+    playlist.clear();
+  }
+
+  boolean videoAlreadyExists(String videoName) {
+    boolean exists = false;
+    for (Video video: playlist){
+      if (video.getVideoId().equals(videoName)){
+        exists = true;
+      }
     }
+    return exists;
   }
 
 }
